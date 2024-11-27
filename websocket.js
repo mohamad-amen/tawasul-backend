@@ -4,9 +4,8 @@ import { RoomsRepo } from './models/roomModel.js';
 import { ParticipantsRepo } from './models/participantModel.js';
 
 
-
 const port = 8001;
-const wsServer = new WebSocketServer({ port: port });
+const wsServer = new WebSocketServer({port: port});
 
 let roomsRepo = new RoomsRepo();
 let participantsRepo = new ParticipantsRepo();
@@ -17,7 +16,6 @@ function createRoom(participantId) {
     let participant = participantsRepo.getParticipantById(participantId);
 
     console.log("created room with id:", room.id);
-    roomsRepo.logRooms();
 
     let message = JSON.stringify({
         type: 'createRoom',
@@ -53,8 +51,7 @@ function addToRoom(participantId, roomId) {
     }
 
     console.log(participantId, "was added to room", roomId);
-    participantsRepo.logParticipants();
-    roomsRepo.logRooms();
+
 }
 
 
@@ -99,7 +96,7 @@ function hangup(participantId) {
     let participant = participantsRepo.getParticipantById(participantId);
 
     console.log("user", participant.id, "just hungup from room", participant.roomId);
-    
+
     roomsRepo.removeParticipantFromRoom(participant);
 }
 
@@ -114,9 +111,6 @@ function onClosed(participantId) {
 
     console.log('disconnected client:', participantId);
     console.log("there is", wsServer.clients.size, "clients");
-
-    roomsRepo.logRooms();
-    participantsRepo.logParticipants();
 }
 
 
@@ -139,6 +133,7 @@ function onMessage(messageBuffer, participantId) {
             addToRoom(participantId, messageObj.roomId);
             break;
 
+
         case 'offerSDP':
             sendToRoom(messageBuffer.toString(), participantId);
             console.log(messageObj);
@@ -159,12 +154,18 @@ function onMessage(messageBuffer, participantId) {
 
         case 'message':
             console.log('Received from', messageObj.senderId, ':', messageObj.message);
-            broadCastMessage(messageBuffer);
+            broadCastMessage(messageBuffer.toString());
             break;
 
 
         case 'hangup':
             hangup(participantId);
+            break;
+
+
+        case 'logRepos':
+            participantsRepo.logParticipants();
+            roomsRepo.logRooms();
             break;
 
 
@@ -194,8 +195,7 @@ wsServer.on('connection', (client) => {
         }));
 });
 
-console.log('WebSocket server is running on ws://localhost:' + port);
-console.log("Enter 'kill' to kill server.");
+console.log('WebSocket server is running');
 
 const rl = createInterface({
     input: process.stdin,
@@ -204,10 +204,20 @@ const rl = createInterface({
 
 
 rl.on('line', (input) => {
-    if (input === 'kill') {
-        console.log('Goodbye!');
-        closeAllConnections();
-        wsServer.close();
-        rl.close();
+    switch (input) {
+        case 'kill':
+            console.log('Goodbye!');
+            closeAllConnections();
+            wsServer.close();
+            rl.close();
+            break;
+
+        case 'logRepos':
+            participantsRepo.logParticipants();
+            roomsRepo.logRooms();
+            break;
+
+        default:
+            console.log('Unknown command:', input);
     }
 })
