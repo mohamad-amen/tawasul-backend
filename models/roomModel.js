@@ -2,7 +2,7 @@ class RoomModel {
     constructor(id) {
         this.id = id;
         this.participants = [];
-        this.isRoomFull = false;
+        this.isFull = false;
     }
 
     addParticipant(participant) {
@@ -19,9 +19,9 @@ class RoomModel {
 
     updateRoomState() {
         if (this.participants.length >= 2) {
-            this.isRoomFull = true;
+            this.isFull = true;
         } else {
-            this.isRoomFull = false;
+            this.isFull = false;
         }
     }
 }
@@ -84,7 +84,7 @@ class RoomsRepo {
         let room = this.getRoomById(participant.roomId);
 
         if (room.participants.length <= 1) {
-            console.log('this room will be deleted because it is empty:', room.id);
+            console.log('room', room.id, 'will be deleted because it is empty');
             this.deleteRoom(room.id);
         } else {
             room.removeParticipant(participant);

@@ -43,6 +43,24 @@ function addToRoom(participantId, roomId) {
     let participant = participantsRepo.getParticipantById(participantId);
     let room = roomsRepo.getRoomById(roomId);
 
+    if(room == undefined){
+        let message = JSON.stringify({
+            type: 'JoinRoom',
+            error: 'Room ID is incorrect, this room does not exist',
+        });
+
+        participant.webSocket.send(message);
+        return;
+    }else if(room.isFull){
+        let message = JSON.stringify({
+            type: 'JoinRoom',
+            error: 'This room is full!',
+        });
+
+        participant.webSocket.send(message);
+        return;
+    }
+
     room.addParticipant(participant);
     participant.setRoomId(roomId);
 
@@ -91,7 +109,6 @@ function handleNewClient(client) {
     return participant;
 }
 
-//TODO: hangup not close connection
 function hangup(participantId) {
     let participant = participantsRepo.getParticipantById(participantId);
 
@@ -121,11 +138,6 @@ function onMessage(messageBuffer, participantId) {
         case 'createRoom':
             let room = createRoom(participantId);
             addToRoom(participantId, room.id);
-            break;
-
-
-        case 'doesRoomExist':
-            doesRoomExist(messageObj.roomId);
             break;
 
 
