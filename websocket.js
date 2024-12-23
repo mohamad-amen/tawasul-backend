@@ -27,23 +27,11 @@ function createRoom(participantId) {
     return room
 }
 
-function doesRoomExist(roomId) {
-    let doesRoomExist = roomsRepo.getRoomById(roomId) !== undefined;
-
-    let message = JSON.stringify({
-        type: 'doesRoomExist',
-        answer: doesRoomExist
-    });
-
-    participantsRepo.getParticipantById(roomId).webSocket.send(message);
-}
-
-
 function addToRoom(participantId, roomId) {
     let participant = participantsRepo.getParticipantById(participantId);
     let room = roomsRepo.getRoomById(roomId);
 
-    if(room == undefined){
+    if(room === undefined){
         let message = JSON.stringify({
             type: 'JoinRoom',
             error: 'Room ID is incorrect, this room does not exist',
