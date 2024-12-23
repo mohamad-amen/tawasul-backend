@@ -33,7 +33,7 @@ function addToRoom(participantId, roomId) {
 
     if(room === undefined){
         let message = JSON.stringify({
-            type: 'JoinRoom',
+            type: 'joinRoom',
             error: 'Room ID is incorrect, this room does not exist',
         });
 
@@ -41,7 +41,7 @@ function addToRoom(participantId, roomId) {
         return;
     }else if(room.isFull){
         let message = JSON.stringify({
-            type: 'JoinRoom',
+            type: 'joinRoom',
             error: 'This room is full!',
         });
 
