@@ -54,7 +54,6 @@ function addToRoom(participantId, roomId) {
 
     let message = JSON.stringify({
         type: 'joinRoom',
-        error: 'This room is full!',
     });
 
     participant.webSocket.send(message);
