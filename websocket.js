@@ -52,13 +52,13 @@ function addToRoom(participantId, roomId) {
     room.addParticipant(participant);
     participant.setRoomId(roomId);
 
-    let message = JSON.stringify({
-        type: 'joinRoom',
-    });
+    if(messageType === 'joinRoom'){
+        let message = JSON.stringify({
+            type: 'joinRoom',
+        });
 
-    participant.webSocket.send(message);
-
-    if (room.participants.length > 1) {
+        participant.webSocket.send(message);
+   
         sendToRoom(JSON.stringify({ type: "newParticipant" }), participantId);
     }
 
@@ -131,12 +131,12 @@ function onMessage(messageBuffer, participantId) {
     switch (messageObj.type) {
         case 'createRoom':
             let room = createRoom(participantId);
-            addToRoom(participantId, room.id);
+            addToRoom(participantId, room.id, messageObj.type);
             break;
 
 
         case 'joinRoom':
-            addToRoom(participantId, messageObj.roomId);
+            addToRoom(participantId, messageObj.roomId, messageObj.type);
             break;
 
 
@@ -201,7 +201,7 @@ wsServer.on('connection', (client) => {
         }));
 });
 
-console.log('WebSocket server is running');
+console.log('>> WebSocket server is running <<');
 
 const rl = createInterface({
     input: process.stdin,
