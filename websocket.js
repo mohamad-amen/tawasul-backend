@@ -27,7 +27,7 @@ function createRoom(participantId) {
     return room
 }
 
-function addToRoom(participantId, roomId) {
+function addToRoom(participantId, roomId, messageType) {
     let participant = participantsRepo.getParticipantById(participantId);
     let room = roomsRepo.getRoomById(roomId);
 
@@ -63,7 +63,6 @@ function addToRoom(participantId, roomId) {
     }
 
     console.log(participantId, "was added to room", roomId);
-
 }
 
 
@@ -106,13 +105,19 @@ function handleNewClient(client) {
 function hangup(participantId) {
     let participant = participantsRepo.getParticipantById(participantId);
 
-    console.log("user", participant.id, "just hungup from room", participant.roomId);
-
+    let message = JSON.stringify({'type': "otherParticipantDisconnected"});
+    sendToRoom(message, participantId);
+    
     roomsRepo.removeParticipantFromRoom(participant);
+    
+    console.log("participant", participant.id, "just hungup from room", participant.roomId);
 }
 
 function onClosed(participantId) {
     let participant = participantsRepo.getParticipantById(participantId);
+
+    let message = JSON.stringify({'type': "otherParticipantDisconnected"});
+    sendToRoom(message, participantId);
 
     if (participant.roomId !== undefined) {
         roomsRepo.removeParticipantFromRoom(participant);
