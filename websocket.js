@@ -1,7 +1,7 @@
 import { WebSocketServer } from "ws";
 import { createInterface } from 'readline';
 import { RoomsRepo } from './models/roomModel.js';
-import { ParticipantsRepo } from './models/participantModel.js';
+import { ParticipantModel, ParticipantsRepo } from './models/participantModel.js';
 
 
 const port = 8001;
@@ -108,18 +108,18 @@ function hangup(participantId) {
     let message = JSON.stringify({'type': "otherParticipantDisconnected"});
     sendToRoom(message, participantId);
     
-    roomsRepo.removeParticipantFromRoom(participant);
-    
     console.log("participant", participant.id, "just hungup from room", participant.roomId);
+    
+    roomsRepo.removeParticipantFromRoom(participant);
 }
 
 function onClosed(participantId) {
     let participant = participantsRepo.getParticipantById(participantId);
 
-    let message = JSON.stringify({'type': "otherParticipantDisconnected"});
-    sendToRoom(message, participantId);
-
     if (participant.roomId !== undefined) {
+        let message = JSON.stringify({'type': "otherParticipantDisconnected"});
+        sendToRoom(message, participantId);
+
         roomsRepo.removeParticipantFromRoom(participant);
     }
 
